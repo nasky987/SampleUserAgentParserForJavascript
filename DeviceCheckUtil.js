@@ -41,7 +41,8 @@ const DEVICE = {
     IE: {name: 'InternetExplorer', minimumVersion: 11},
     CHROME: {name: 'Chrome', minimumVersion: 51.0},
     SAFARI: {name: 'Safari', minimumVersion: 7.1},
-    FIREFOX: {name: 'Firefox', minimumVersion: 31.3}
+    FIREFOX: {name: 'Firefox', minimumVersion: 31.3},
+    UNKNOWN: {name: 'Unknown Device', minimumVersion: 0}
 };
 
 /* 접속한 사용자의 UserAgent 값 */
@@ -79,6 +80,10 @@ var DeviceCheckUtil = {
             /* Android 체크 */
             } else if ( this.isAndroid() ) {
                 return DEVICE.ANDROID;
+
+            /* 예외 처리 */
+            } else {
+                return DEVICE.UNKNOWN;
             }
         } else {
             console.log('[pc]');
@@ -97,6 +102,10 @@ var DeviceCheckUtil = {
             /* Firefox 체크 */
             } else if ( this.isFirefox() ) {
                 return DEVICE.FIREFOX;
+
+            /* 예외 처리 */
+            } else {
+                return DEVICE.UNKNOWN;
             }
         }
     },
@@ -135,6 +144,10 @@ var DeviceCheckUtil = {
 
             case DEVICE.FIREFOX:
                 return this.getFirefoxVersion();
+                break;
+
+            case DEVICE.UNKNOWN:
+                return DEVICE.UNKNOWN.minimumVersion;
                 break;
 
             default:
