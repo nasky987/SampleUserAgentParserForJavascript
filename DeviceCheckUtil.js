@@ -45,8 +45,6 @@ var DeviceCheckUtil = {
             /* Android 체크 */
             } else if ( this.isAndroid() ) {
                 return DEVICE.ANDROID;
-            } else {
-                return 'unknownDevice';
             }
         } else {
             console.log('[pc]');
@@ -65,8 +63,6 @@ var DeviceCheckUtil = {
             /* Firefox 체크 */
             } else if ( this.isFirefox() ) {
                 return DEVICE.FIREFOX;
-            } else {
-                return 'unknownDevice';
             }
         }
     },
@@ -75,6 +71,14 @@ var DeviceCheckUtil = {
         console.log('deviceType : ' + deviceType.name);
         console.log('minimumVersion : ' + deviceType.minimumVersion);
         console.log('version : ' + this.getVersion( deviceType ));
+
+        /* 버전 가져왔을 경우 마지막에 .이 있을 경우 처리
+        var deviceVersion = this.getVersion( deviceType );
+
+        if ( deviceVersion.lastIndexOf('.') == (deviceVersion.length - 1) ) {
+            deviceVersion = deviceVersion.substring(0, deviceVersion.lastIndexOf('.'));
+        }
+         */
 
         return this.getVersion( deviceType ) < deviceType.minimumVersion;
 /*
@@ -141,18 +145,21 @@ var DeviceCheckUtil = {
     },
 
     getiOSVersion: function() {
-        return deviceUserAgent.substr(deviceUserAgent.indexOf('os') + 3, 3).replace('_', '.');
+        //return deviceUserAgent.substr(deviceUserAgent.indexOf('os') + 3, 3).replace('_', '.');
+        return deviceUserAgent.match(/os\s([0-9]+_[0-9]+)/)[1].replace('_', '.');
     },
 
     getAndroidVersion: function() {
-        return deviceUserAgent.substr(deviceUserAgent.indexOf('android') + 8, 3);
+        //return deviceUserAgent.substr(deviceUserAgent.indexOf('android') + 8, 3);
+        return deviceUserAgent.match(/android\s([0-9]+\.[0-9]+)/)[1];
     },
 
     getIEVersion: function() {
         var msie = deviceUserAgent.indexOf('msie');
 
         if ( msie > 0 ) {
-            return parseInt(deviceUserAgent.substring(msie + 5, deviceUserAgent.indexOf('.', msie)), 10);
+            //return parseInt(deviceUserAgent.substring(msie + 5, deviceUserAgent.indexOf('.', msie)), 10);
+            return deviceUserAgent.match(/msie\s([0-9]+)/)[1];
         }
 
         var trident = deviceUserAgent.indexOf('trident/');
@@ -160,26 +167,31 @@ var DeviceCheckUtil = {
         if ( trident > 0 ) {
             var rv = deviceUserAgent.indexOf('rv:');
 
-            return parseInt(deviceUserAgent.substring(rv + 3, deviceUserAgent.indexOf('.', rv)), 10);
+            //return parseInt(deviceUserAgent.substring(rv + 3, deviceUserAgent.indexOf('.', rv)), 10);
+            return deviceUserAgent.match(/rv:([0-9]+)/)[1];
         }
 
         var edge = deviceUserAgent.indexOf('edge/');
 
         if ( edge > 0 ) {
-            return parseInt(deviceUserAgent.substring(edge + 5, deviceUserAgent.indexOf('.', edge)), 10);
+            return deviceUserAgent.match(/edge\/([0-9]+)/)[1];
+            //return parseInt(deviceUserAgent.substring(edge + 5, deviceUserAgent.indexOf('.', edge)), 10);
         }
     },
 
     getChromeVersion: function() {
-        return deviceUserAgent.substr(deviceUserAgent.lastIndexOf('chrome/') + 7, 4);
+        //return deviceUserAgent.substr(deviceUserAgent.lastIndexOf('chrome/') + 7, 4);
+        return deviceUserAgent.match(/chrom(e|ium)\/([0-9]+\.[0-9]+)/)[2];
     },
 
     getSafariVersion: function() {
-        return deviceUserAgent.substring(deviceUserAgent.indexOf("version")).split(" ")[0].split("/")[1].substr(0, 3);
+        return deviceUserAgent.match(/version\/([0-9]+\.[0-9]+)/)[1];
+        //return deviceUserAgent.substring(deviceUserAgent.indexOf("version")).split(" ")[0].split("/")[1].substr(0, 3);
     },
 
     getFirefoxVersion: function() {
-        return deviceUserAgent.substr(deviceUserAgent.lastIndexOf('firefox/') + 8, 5);
+        //return deviceUserAgent.substr(deviceUserAgent.lastIndexOf('firefox/') + 8, 5);
+        return deviceUserAgent.match(/firefox\/([0-9]+\.[0-9]+)/)[1];
     },
 
     isMobile: function() {
@@ -199,7 +211,7 @@ var DeviceCheckUtil = {
     },
 
     isChrome: function() {
-        return (/chrome/.test(deviceUserAgent));
+        return (/chrom(e|ium)/.test(deviceUserAgent));
     },
 
     isSafari: function() {
