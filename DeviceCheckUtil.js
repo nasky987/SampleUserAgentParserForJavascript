@@ -2,8 +2,40 @@
  * ETRIBE - Device Check Util
  */
 
+/* 로거 설정 */
+const DEBUG_MODE = true;
+
+const logger = function () {
+    var oldConsoleLog = null;
+    var newConsoleLog = {};
+
+    newConsoleLog.enableLogger =  function enableLogger() {
+        if ( oldConsoleLog == null ) {
+            return;
+        }
+
+        window['console']['log'] = oldConsoleLog;
+    };
+
+    newConsoleLog.disableLogger = function disableLogger() {
+        oldConsoleLog = console.log;
+
+        window['console']['log'] = function() {};
+    };
+
+    newConsoleLog.setEnable = function ( enableStatus ) {
+        if ( enableStatus ) {
+            newConsoleLog.enableLogger();
+        } else {
+            newConsoleLog.disableLogger();
+        }
+    };
+
+    return newConsoleLog;
+} ();
+
 /* 브라우저 및 모바일OS Enum */
-var DEVICE = {
+const DEVICE = {
     IOS: {name: 'iOS', minimumVersion: 7.1},
     ANDROID: {name: 'Android', minimumVersion: 4.2},
     IE: {name: 'InternetExplorer', minimumVersion: 11},
@@ -15,18 +47,19 @@ var DEVICE = {
 /* 접속한 사용자의 UserAgent 값 */
 var deviceUserAgent = navigator.userAgent.toLowerCase();
 
-/* 디바이스  */
+/* 디바이스 체크 유틸 */
 var DeviceCheckUtil = {
+    /* 제한된 디바이스 여부 체크 */
     isRestrictedDevice: function() {
+        logger.setEnable(DEBUG_MODE);
+
         var result = false;
         var deviceType = '';
 
         console.log('userAgent : ' + deviceUserAgent);
 
-        /* Device 체크 */
         deviceType = this.checkDeviceType();
 
-        /* 버전제한 체크 */
         result = this.checkRestrict(deviceType);
 
         console.log('check result : ' + result);
@@ -34,6 +67,7 @@ var DeviceCheckUtil = {
         return result;
     },
 
+    /* 디바이스 타입 체크 */
     checkDeviceType: function() {
         if ( this.isMobile() ) {
             console.log('[mobile]');
@@ -67,52 +101,16 @@ var DeviceCheckUtil = {
         }
     },
 
+    /* 버전제한 체크 */
     checkRestrict: function( deviceType ) {
         console.log('deviceType : ' + deviceType.name);
         console.log('minimumVersion : ' + deviceType.minimumVersion);
         console.log('version : ' + this.getVersion( deviceType ));
 
-        /* 버전 가져왔을 경우 마지막에 .이 있을 경우 처리
-        var deviceVersion = this.getVersion( deviceType );
-
-        if ( deviceVersion.lastIndexOf('.') == (deviceVersion.length - 1) ) {
-            deviceVersion = deviceVersion.substring(0, deviceVersion.lastIndexOf('.'));
-        }
-         */
-
         return this.getVersion( deviceType ) < deviceType.minimumVersion;
-/*
-        switch ( deviceType ) {
-            case DEVICE.IOS:
-                return this.getVersion( deviceType ) < DEVICE.IOS.minimumVersion;
-                break;
-
-            case DEVICE.ANDROID:
-                return this.getVersion( deviceType ) < DEVICE.ANDROID.minimumVersion;
-                break;
-
-            case DEVICE.IE:
-                return this.getVersion( deviceType ) < DEVICE.IE.minimumVersion;
-                break;
-
-            case DEVICE.CHROME:
-                return this.getVersion( deviceType ) < DEVICE.CHROME.minimumVersion;
-                break;
-
-            case DEVICE.SAFARI:
-                return this.getVersion( deviceType ) < DEVICE.SAFARI.minimumVersion;
-                break;
-
-            case DEVICE.FIREFOX:
-                return this.getVersion( deviceType ) < DEVICE.FIREFOX.minimumVersion;
-                break;
-
-            default:
-                break;
-        }
-*/
     },
 
+    /* 버전 정보 획득 */
     getVersion: function( deviceType ) {
         switch ( deviceType ) {
             case DEVICE.IOS:
@@ -145,12 +143,10 @@ var DeviceCheckUtil = {
     },
 
     getiOSVersion: function() {
-        //return deviceUserAgent.substr(deviceUserAgent.indexOf('os') + 3, 3).replace('_', '.');
         return deviceUserAgent.match(/os\s([0-9]+_[0-9]+)/)[1].replace('_', '.');
     },
 
     getAndroidVersion: function() {
-        //return deviceUserAgent.substr(deviceUserAgent.indexOf('android') + 8, 3);
         return deviceUserAgent.match(/android\s([0-9]+\.[0-9]+)/)[1];
     },
 
@@ -158,7 +154,6 @@ var DeviceCheckUtil = {
         var msie = deviceUserAgent.indexOf('msie');
 
         if ( msie > 0 ) {
-            //return parseInt(deviceUserAgent.substring(msie + 5, deviceUserAgent.indexOf('.', msie)), 10);
             return deviceUserAgent.match(/msie\s([0-9]+)/)[1];
         }
 
@@ -167,7 +162,6 @@ var DeviceCheckUtil = {
         if ( trident > 0 ) {
             var rv = deviceUserAgent.indexOf('rv:');
 
-            //return parseInt(deviceUserAgent.substring(rv + 3, deviceUserAgent.indexOf('.', rv)), 10);
             return deviceUserAgent.match(/rv:([0-9]+)/)[1];
         }
 
@@ -175,22 +169,18 @@ var DeviceCheckUtil = {
 
         if ( edge > 0 ) {
             return deviceUserAgent.match(/edge\/([0-9]+)/)[1];
-            //return parseInt(deviceUserAgent.substring(edge + 5, deviceUserAgent.indexOf('.', edge)), 10);
         }
     },
 
     getChromeVersion: function() {
-        //return deviceUserAgent.substr(deviceUserAgent.lastIndexOf('chrome/') + 7, 4);
         return deviceUserAgent.match(/chrom(e|ium)\/([0-9]+\.[0-9]+)/)[2];
     },
 
     getSafariVersion: function() {
         return deviceUserAgent.match(/version\/([0-9]+\.[0-9]+)/)[1];
-        //return deviceUserAgent.substring(deviceUserAgent.indexOf("version")).split(" ")[0].split("/")[1].substr(0, 3);
     },
 
     getFirefoxVersion: function() {
-        //return deviceUserAgent.substr(deviceUserAgent.lastIndexOf('firefox/') + 8, 5);
         return deviceUserAgent.match(/firefox\/([0-9]+\.[0-9]+)/)[1];
     },
 
@@ -221,4 +211,4 @@ var DeviceCheckUtil = {
     isFirefox: function() {
         return (/firefox/.test(deviceUserAgent));
     }
-}
+};
