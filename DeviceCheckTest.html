@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="./DeviceCheckUtil.js"></script>
+</head>
+<body>
+    <div id="text"></div>
+
+    <script>
+        if ( DeviceCheckUtil.isRestrictedDevice() ) {
+            document.getElementById('text').innerHTML = '<h1><font color="red">제한된 브라우저</font></h1>';
+        } else {
+            document.getElementById('text').innerHTML = '<h1>정상</h1>';
+        }
+    </script>
+</body>
+</html>
