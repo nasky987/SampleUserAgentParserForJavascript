@@ -45,6 +45,8 @@ var DeviceCheckUtil = {
             /* Android 체크 */
             } else if ( this.isAndroid() ) {
                 return DEVICE.ANDROID;
+            } else {
+                return 'unknownDevice';
             }
         } else {
             console.log('[pc]');
@@ -63,6 +65,8 @@ var DeviceCheckUtil = {
             /* Firefox 체크 */
             } else if ( this.isFirefox() ) {
                 return DEVICE.FIREFOX;
+            } else {
+                return 'unknownDevice';
             }
         }
     },
